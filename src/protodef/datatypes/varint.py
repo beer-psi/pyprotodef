@@ -43,7 +43,7 @@ class SizedVarInt(Construct):
 
             shift += 7
 
-            if shift > self._bits:
+            if shift >= self._bits:
                 msg = f"VarInt too large for {self._bits} bits"
                 raise IntegerError(msg, path)
 
@@ -110,7 +110,7 @@ class SizedZigZag(Construct):
 
             shift += 7
 
-            if shift > self._bits:
+            if shift >= self._bits:
                 msg = f"VarInt too large for {self._bits} bits"
                 raise IntegerError(msg, path)
 
