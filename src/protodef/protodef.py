@@ -27,7 +27,7 @@ def from_file(
 
 
 def from_definition(
-    protocol: ProtodefDefinition,
+    protocol: Any,
     *,
     additional_types: dict[str, "ProtodefType[Any, Any]"] | None = None,
 ):
