@@ -46,7 +46,9 @@ def from_definition(
         if ns_parts is None:
             ns_parts = []
 
-        type_names: set[str] = set(protocol.get("types", {}))
+        type_names: set[str] = {
+            ".".join([*ns_parts, type_id]) for type_id in protocol.get("types", {})
+        }
 
         for namespace, subdata in protocol.items():
             if namespace == "types":
@@ -63,6 +65,8 @@ def from_definition(
     ):
         if ns_parts is None:
             ns_parts = []
+
+        ctx.current_namespace = ".".join(ns_parts)
 
         typetree: Tree["ProtodefType[Any, Any]"] = {}
         types = protocol.get("types", {})

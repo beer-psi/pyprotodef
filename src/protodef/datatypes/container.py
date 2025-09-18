@@ -6,6 +6,7 @@ from construct import (
     Bytewise,
     Construct,
     If,
+    Renamed,
     Restreamed,
     Struct,
     Switch,
@@ -66,15 +67,24 @@ def convert_container(ctx: ConverterContext, arg: list[ContainerItem]):
             if isinstance(subcon, Struct):
                 subcons.extend(subcon.subcons)
             elif isinstance(subcon, Switch):
-                for case, case_struct in subcon.cases.items():  # pyright: ignore[reportAny]
-                    assert isinstance(case_struct, Struct)
-
-                    subcons.extend(
-                        [
-                            sc.name / If(subcon.keyfunc == case, sc)  # pyright: ignore[reportAny, reportOperatorIssue, reportUnknownArgumentType, reportArgumentType]
-                            for sc in case_struct.subcons
-                        ]
-                    )
+                for case, case_subcon in subcon.cases.items():  # pyright: ignore[reportAny]
+                    if isinstance(case_subcon, Struct):
+                        subcons.extend(
+                            [
+                                sc.name / If(subcon.keyfunc == case, sc)  # pyright: ignore[reportAny, reportOperatorIssue, reportUnknownArgumentType, reportArgumentType]
+                                for sc in case_subcon.subcons
+                            ]
+                        )
+                    else:
+                        subcons.append(
+                            case_subcon.name
+                            / If(
+                                subcon.keyfunc == case,
+                                case_subcon.subcon
+                                if isinstance(case_subcon, Renamed)
+                                else case_subcon,
+                            )
+                        )
             else:
                 subcons.append(subcon)
 
