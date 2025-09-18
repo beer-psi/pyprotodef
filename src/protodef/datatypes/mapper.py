@@ -32,11 +32,15 @@ class MapperAdapter(Adapter):
 
     @override
     def _decode(self, obj: object, context: "Context", path: str):
-        return self.mapping[obj]
+        result = self.mapping.get(obj)
+
+        return obj if result is None else result
 
     @override
     def _encode(self, obj: object, context: "Context", path: str):
-        return self.inverse[obj]
+        inverse = self.inverse.get(obj)
+
+        return obj if inverse is None else inverse
 
 
 class MapperArguments(TypedDict):

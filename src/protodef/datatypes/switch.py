@@ -1,6 +1,6 @@
 from typing import Any, TypedDict
 
-from construct import Construct, Error, Switch
+from construct import Construct, Switch
 from typing_extensions import NotRequired
 
 from protodef._path import protodef_to_construct_path
@@ -17,7 +17,7 @@ class SwitchArguments(TypedDict):
 def convert_switch(ctx: ConverterContext, arg: SwitchArguments):
     compare_to = arg.get("compareTo")
     fields = arg["fields"]
-    default = arg.get("default")
+    default = arg.get("default", "void")
 
     if compare_to is None:
         msg = "compareTo is not set. compareToValue is not supported."
@@ -54,7 +54,7 @@ def convert_switch(ctx: ConverterContext, arg: SwitchArguments):
             return Switch(
                 protodef_to_construct_path(compare_to),
                 sanitized_fields,
-                ctx.convert_type(default) if default is not None else Error,
+                ctx.convert_type(default),
             )
 
         return inner
@@ -62,5 +62,5 @@ def convert_switch(ctx: ConverterContext, arg: SwitchArguments):
     return Switch(
         protodef_to_construct_path(compare_to),
         sanitized_fields,
-        ctx.convert_type(default) if default is not None else Error,
+        ctx.convert_type(default),
     )
