@@ -1,4 +1,5 @@
 import re
+from functools import reduce
 from typing import Any, TypedDict, cast
 
 from construct import (
@@ -6,6 +7,7 @@ from construct import (
     Bytewise,
     Construct,
     If,
+    Pass,
     Renamed,
     Restreamed,
     Struct,
@@ -83,6 +85,30 @@ def convert_container(ctx: ConverterContext, arg: list[ContainerItem]):
                                 case_subcon.subcon
                                 if isinstance(case_subcon, Renamed)
                                 else case_subcon,
+                            )
+                        )
+
+                if subcon.default != Pass:
+                    condfunc = reduce(
+                        lambda a, b: a and b,
+                        [subcon.keyfunc != case for case in subcon.cases],
+                    )
+
+                    if isinstance(subcon.default, Struct):
+                        subcons.extend(
+                            [
+                                sc.name / If(condfunc, sc)  # pyright: ignore[reportArgumentType]
+                                for sc in subcon.default.subcons
+                            ]
+                        )
+                    else:
+                        subcons.append(
+                            subcon.default.name
+                            / If(
+                                condfunc,  # pyright: ignore[reportArgumentType]
+                                subcon.default.subcon
+                                if isinstance(subcon.default, Renamed)
+                                else subcon.default,
                             )
                         )
             else:

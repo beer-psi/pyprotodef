@@ -40,6 +40,34 @@ def test_switch_going_to_u8_u16_u32(
     assert con.build(value) == data
 
 
+def test_anon_switch_with_default(converter_context: ConverterContext):
+    con = converter_context.convert_type(
+        [
+            "container",
+            [
+                {"name": "count", "type": "varint"},
+                {
+                    "anon": True,
+                    "type": [
+                        "switch",
+                        {
+                            "compareTo": "count",
+                            "fields": {"0": "void"},
+                            "default": [
+                                "container",
+                                [{"name": "id", "type": "varint"}],
+                            ],
+                        },
+                    ],
+                },
+            ],
+        ]
+    )
+
+    assert con.parse(b"\x00") == {"count": 0, "id": None}
+    assert con.parse(b"\x01\x01") == {"count": 1, "id": 1}
+
+
 @pytest.mark.skip(reason="we do not support compile-time variables yet")
 @pytest.mark.parametrize(
     "data,value",
