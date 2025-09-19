@@ -47,9 +47,9 @@ class ConverterContext:
 
         if typ is None:
             if self.fully_qualified_name(type_id) in self.all_type_names:
-                return LazyBound(
-                    lambda: self.convert_type((self.fully_qualified_name(type_id), arg))
-                )
+                fqn = self.fully_qualified_name(type_id)
+                
+                return LazyBound(lambda: self.convert_type((fqn, arg)))
 
             if type_id in self.all_type_names:
                 return LazyBound(lambda: self.convert_type(protodef_type))
